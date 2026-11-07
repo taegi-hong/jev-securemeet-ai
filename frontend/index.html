@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JEV AI Prototype - MVP Prototype</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <header class="navbar">
+      <div class="brand">
+        <img src="assets/app_logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
+        <span class="brand-title">JEV AI Prototype</span>
+      </div>
+      <div class="badge">🚀 MVP Prototype Live</div>
+    </header>
+
+    <main class="main-content">
+      <section class="hero-section">
+        <div class="hero-text">
+          <h1>JEV AI Prototype</h1>
+          <p class="hero-sub"></p>
+          <div class="uvp-box">💡 </div>
+        </div>
+        <div class="hero-image">
+          <img src="assets/hero_banner.png" alt="Hero Banner" onerror="this.style.display='none'">
+        </div>
+      </section>
+
+      <section class="dashboard-grid">
+        <div class="card stat-card">
+          <h3>⚡ 로컬 AI 구동 상태</h3>
+          <p class="stat-value">100% Offline Active</p>
+          <span class="stat-sub">외부 API 과금 0원 유지 중</span>
+        </div>
+        <div class="card stat-card">
+          <h3>🔒 보안 상태</h3>
+          <p class="stat-value">Private On-Premise</p>
+          <span class="stat-sub">개인 데이터 외부 유출 차단</span>
+        </div>
+        <div class="card stat-card">
+          <h3>🎯 목표 BEP 달성도</h3>
+          <p class="stat-value">D-120일</p>
+          <span class="stat-sub">JEV 5단계 자동화 가동 중</span>
+        </div>
+      </section>
+
+      <section class="card action-card">
+        <h2>🛠️ 실시간 데이터 레코드</h2>
+        <div class="input-row">
+          <input type="text" id="itemInput" placeholder="새로운 작업 또는 분석 데이터를 입력하세요...">
+          <button id="btnAdd">추가하기</button>
+        </div>
+        <ul id="itemList" class="item-list">
+          <li>데이터를 불러오는 중...</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

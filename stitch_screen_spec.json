@@ -1,0 +1,10 @@
+{
+  "project_name": "JEV AI Prototype",
+  "stitch_screen_prompt": "Modern responsive web dashboard for JEV AI Prototype. Clean dark UI theme, top navigation with logo, hero banner with KPI metrics, and a dynamic real-time data table.",
+  "design_system": {
+    "primary_color": "#0284c7",
+    "background_color": "#0b0f19",
+    "accent_color": "#38bdf8",
+    "font_family": "Inter, sans-serif"
+  }
+}
