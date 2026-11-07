@@ -3,59 +3,281 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>JEV AI Prototype - MVP Prototype</title>
+  <title>SecureMeet AI — 오프라인 성문(Voiceprint) 평생기억 화자분리 & 액션 추출기</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="app-container">
+    <!-- 상단 보안 헤더 -->
     <header class="navbar">
       <div class="brand">
-        <img src="assets/app_logo.png" alt="Logo" class="logo-img" onerror="this.style.display='none'">
-        <span class="brand-title">JEV AI Prototype</span>
+        <span class="logo-emoji">🎙️</span>
+        <div>
+          <span class="brand-title">SecureMeet AI <small>/ 사내 기밀 오프라인 성문(Voiceprint) 화자분리 &amp; 액션 추출기</small></span>
+          <span class="brand-sub">회의 시간·종류·참석자 설정 · 목소리 변화 자동 분리 · 1회 참석자 매핑 시 전 문장 일괄 기록 및 평생 성문 자동 분류</span>
+        </div>
       </div>
-      <div class="badge">🚀 MVP Prototype Live</div>
+      <div class="header-badges">
+        <button type="button" class="guide-toggle-btn" onclick="toggleGuideBanner()">❓ 성문 화자분리 사용법 보기/접기</button>
+        <span class="badge-security">🛡️ AIR-GAPPED 폐쇄망 보안 모드</span>
+        <span class="badge-live">⚡ Port 9050 Live</span>
+      </div>
     </header>
 
-    <main class="main-content">
-      <section class="hero-section">
-        <div class="hero-text">
-          <h1>JEV AI Prototype</h1>
-          <p class="hero-sub"></p>
-          <div class="uvp-box">💡 </div>
-        </div>
-        <div class="hero-image">
-          <img src="assets/hero_banner.png" alt="Hero Banner" onerror="this.style.display='none'">
-        </div>
-      </section>
+    <!-- 실시간 토스트 알림 배너 -->
+    <div id="toastBanner" class="toast-banner" style="display:none;"></div>
 
+    <!-- 한눈에 보는 3단계 사용법 & 실시간 진행 상태 표시줄 (Stepper) -->
+    <section class="guide-banner" id="guideBanner">
+      <div class="guide-header">
+        <span class="guide-badge">📖 목소리(성문) 자동 분류 &amp; 평생 기억 사용법</span>
+        <span class="guide-sub">처음 한 번만 목소리의 주인공(참석자)을 선택하면 <strong>그 목소리의 모든 문장이 일괄 기록</strong>되고, <strong>다음 회의부터는 평생 자동으로 분류</strong>됩니다!</span>
+      </div>
+      <div class="stepper-grid">
+        <div class="step-card active" id="stepCard1">
+          <div class="step-num">STEP 1</div>
+          <div class="step-title">📅 회의 시간·종류 선택 &amp; 👥 참석자 추가</div>
+          <div class="step-desc">
+            • <strong>회의 일시·종류·회의명</strong>을 선택하고 <code>＋ 참석자 추가</code>로 회의 참석자를 등록하세요.<br>
+            • 이미 성문이 등록된 참석자는 <code>🟢 성문 평생기억됨</code> 배지가 표시됩니다.
+          </div>
+        </div>
+        <div class="step-card" id="stepCard2">
+          <div class="step-num">STEP 2</div>
+          <div class="step-title">🎤 회의 시작~종료 &amp; 🎵 목소리별 문장 일괄 기록</div>
+          <div class="step-desc">
+            • <code>🎤 회의 음성인식 시작</code>(또는 시뮬레이션) 시 <strong>목소리가 달라질 때마다 텍스트가 분리 기록</strong>됩니다.<br>
+            • 미분류 목소리 문장에서 <strong>참석자를 1번만 선택하면 같은 목소리의 모든 문장이 일괄 변경</strong>됩니다!
+          </div>
+        </div>
+        <div class="step-card" id="stepCard3">
+          <div class="step-num">STEP 3</div>
+          <div class="step-title">🧠 목소리 평생 저장 &amp; 다음 회의 자동 분류 + AI 액션 추출</div>
+          <div class="step-desc">
+            • <code>⏹️ 회의 종료</code> 시 매핑된 참석자의 목소리(성문)가 DB에 <strong>영구 저장</strong>되어, <strong>다음 회의부터는 선택 없이 자동 분류</strong>되며 우측에 액션 아이템이 추출됩니다.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <main class="main-content">
+      <!-- 상단 보안 및 성문 기억 KPI 카드 -->
       <section class="dashboard-grid">
         <div class="card stat-card">
-          <h3>⚡ 로컬 AI 구동 상태</h3>
-          <p class="stat-value">100% Offline Active</p>
-          <span class="stat-sub">외부 API 과금 0원 유지 중</span>
+          <div class="stat-label">🎙️ 평생 성문(목소리) 기억된 참석자</div>
+          <div class="stat-value security" id="statRegisteredVoices">1명 / 4명</div>
+          <div class="stat-sub">한 번 매핑된 목소리는 모든 후속 회의에서 100% 자동 화자 분류</div>
         </div>
         <div class="card stat-card">
-          <h3>🔒 보안 상태</h3>
-          <p class="stat-value">Private On-Premise</p>
-          <span class="stat-sub">개인 데이터 외부 유출 차단</span>
+          <div class="stat-label">📌 미완료 회의 액션 아이템</div>
+          <div class="stat-value warning" id="statPendingActions">0건</div>
+          <div class="stat-sub">화자별 자동 배정 및 마감일 추적 중</div>
         </div>
         <div class="card stat-card">
-          <h3>🎯 목표 BEP 달성도</h3>
-          <p class="stat-value">D-120일</p>
-          <span class="stat-sub">JEV 5단계 자동화 가동 중</span>
+          <div class="stat-label">✅ 이행 완료된 액션 아이템</div>
+          <div class="stat-value success" id="statDoneActions">0건</div>
+          <div class="stat-sub">액션 이행 완료율 <strong id="statActionRate">0%</strong> · 외부 유출 0 Byte</div>
         </div>
       </section>
 
-      <section class="card action-card">
-        <h2>🛠️ 실시간 데이터 레코드</h2>
-        <div class="input-row">
-          <input type="text" id="itemInput" placeholder="새로운 작업 또는 분석 데이터를 입력하세요...">
-          <button id="btnAdd">추가하기</button>
+      <!-- ===================================================================
+           상단 1단계: 회의 일시 · 회의 종류 · 회의명 설정 및 회의 참석자 추가/성문 관리 패널
+           =================================================================== -->
+      <section class="card meeting-setup-card">
+        <div class="card-header-row">
+          <h2>📅 1단계: 회의 시간 · 회의 종류 설정 및 회의 참석자 관리 (성문 평생 기억 DB)</h2>
+          <button type="button" class="reset-voice-btn" onclick="handleResetAllVoices()" title="모든 참석자의 성문 기억을 초기화하여 처음부터 목소리 매핑을 다시 테스트합니다">
+            🔄 전체 성문 기억 초기화 (미분류 상태 테스트용)
+          </button>
         </div>
-        <ul id="itemList" class="item-list">
-          <li>데이터를 불러오는 중...</li>
-        </ul>
+
+        <div class="meeting-meta-grid">
+          <div class="meta-field">
+            <label for="meetingDateTimeInput">🕒 회의 일시 (시간)</label>
+            <input type="datetime-local" id="meetingDateTimeInput" value="2026-11-07T17:10">
+          </div>
+          <div class="meta-field">
+            <label for="meetingTypeSelect">📂 회의 종류 선택</label>
+            <select id="meetingTypeSelect">
+              <option value="🛡️ 사내 기밀 보안 대책 회의">🛡️ 사내 기밀 보안 대책 회의</option>
+              <option value="🔬 R&D 연구개발/특허 보안 회의">🔬 R&amp;D 연구개발/특허 보안 회의</option>
+              <option value="💼 임원 경영전략/M&A 회의">💼 임원 경영전략/M&amp;A 회의</option>
+              <option value="🚀 프로젝트 스프린트/일정 점검">🚀 프로젝트 스프린트/일정 점검</option>
+              <option value="🏦 금융/인프라 컴플라이언스 회의">🏦 금융/인프라 컴플라이언스 회의</option>
+            </select>
+          </div>
+          <div class="meta-field title-field">
+            <label for="meetingTitleInput">📝 회의 제목</label>
+            <input type="text" id="meetingTitleInput" value="차세대 2나노 AI 반도체 수율 & 특허 기밀 보안 대책 회의">
+          </div>
+        </div>
+
+        <!-- 회의 참석자 추가 및 참석자 성문 현황 -->
+        <div class="attendee-manager-box">
+          <div class="attendee-add-row">
+            <span class="attendee-section-label">👥 회의 참석자 추가</span>
+            <input type="text" id="newAttendeeName" placeholder="참석자 이름/직책 입력 (예: 홍태기 대표, 정본부장)">
+            <input type="text" id="newAttendeeDept" placeholder="소속 부서/역할 입력 (예: 경영총괄, 보안감사팀)">
+            <button type="button" class="add-attendee-btn" id="btnAddAttendee" onclick="handleAddAttendee()">
+              ＋ 회의 참석자 추가
+            </button>
+          </div>
+
+          <div class="attendee-chips-wrap" id="attendeeListContainer">
+            <!-- app.js에서 참석자 카드 및 성문 평생기억 상태 배지 동적 렌더링 -->
+          </div>
+        </div>
       </section>
+
+      <!-- ===================================================================
+           하단 메인 2단 워크스페이스:
+           좌측 [2단계: 실시간 음성인식 & 목소리 변화 감지 텍스트 분류/일괄 매핑 스튜디오]
+           우측 [3단계: 회의 추출 액션 아이템 보드]
+           =================================================================== -->
+      <div class="workspace-two-col">
+        <!-- 좌측: 회의 음성인식 & 목소리별 화자 분리 타임라인 -->
+        <section class="card transcriber-card">
+          <div class="card-header-row">
+            <h2>🎙️ 2단계: 회의 음성인식 (시작~종료) &amp; 목소리별 텍스트 자동 분류</h2>
+            <span class="rec-status-pill" id="recStatusPill">● 회의 대기 중 (Offline Ready)</span>
+          </div>
+
+          <!-- [방법 A] 실제 회의 시작 / 종료 컨트롤 및 목소리 주파수 감지 바 -->
+          <div class="studio-section-box mic-box" id="micStudioBox">
+            <div class="studio-section-header">
+              <span class="section-tag">실시간 회의 음성인식 (회의 시작 ~ 종료까지 연속 인식 &amp; 목소리 변화 분리)</span>
+              <span class="mic-timer" id="micTimer">⏱️ 00:00 | 감지 주파수: 대기</span>
+            </div>
+
+            <div class="voice-studio-bar">
+              <button type="button" class="mic-btn" id="btnToggleMic" onclick="toggleLiveMicrophone()">
+                🎤 회의 시작 (실시간 음성인식 시작)
+              </button>
+
+              <button type="button" class="multi-voice-test-btn" id="btnTestVoiceChange" onclick="injectLiveVoiceChangeUtterance()" title="실제 마이크 테스트 중 목소리가 다른 참석자가 이어서 발언하는 상황을 즉시 추가합니다">
+                🗣️ 다른 목소리 발언 이어서 추가 (목소리 변화 테스트)
+              </button>
+
+              <div class="waveform-bars" id="waveformBars">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+
+            <!-- 목소리 톤(성문 클러스터) 감지/전환 표시 바 (혼자서 마이크로 여러 사람 목소리를 테스트할 때도 클릭하여 전환 가능) -->
+            <div class="voice-cluster-selector-bar">
+              <span class="vc-bar-label">🎵 현재 감지 중인 목소리 파형 (자동 피치 감지 / 수동 전환 가능):</span>
+              <div class="vc-pills" id="voiceClusterPills">
+                <button type="button" class="vc-pill active" data-vid="VOICE_A" onclick="setCurrentMicVoiceCluster('VOICE_A')">목소리 A (112Hz 중저음)</button>
+                <button type="button" class="vc-pill" data-vid="VOICE_B" onclick="setCurrentMicVoiceCluster('VOICE_B')">목소리 B (146Hz 중음)</button>
+                <button type="button" class="vc-pill" data-vid="VOICE_C" onclick="setCurrentMicVoiceCluster('VOICE_C')">목소리 C (214Hz 중고음)</button>
+                <button type="button" class="vc-pill" data-vid="VOICE_D" onclick="setCurrentMicVoiceCluster('VOICE_D')">목소리 D (164Hz 바리톤)</button>
+                <button type="button" class="vc-pill" data-vid="VOICE_E" onclick="setCurrentMicVoiceCluster('VOICE_E')">목소리 E (192Hz 하이톤)</button>
+              </div>
+            </div>
+
+            <!-- 실시간 음성 인식 자막 프리뷰 창 -->
+            <div class="live-caption-box" id="liveCaptionBox">
+              <span class="caption-label" id="captionLabel">💬 실시간 음성인식 &amp; 성문(목소리) 분석 대기 중</span>
+              <div class="caption-text" id="captionText">
+                <strong>[🎤 회의 시작]</strong>을 누르면 회의가 끝날 때까지 음성을 연속 인식하며, <strong>목소리가 달라질 때마다 문장을 자동 분류</strong>합니다. 이미 성문이 등록된 참석자는 자동 매칭되고, 미등록 목소리는 아래 목록에서 참석자를 1번만 선택하면 <strong>그 목소리의 모든 문장이 일괄 기록 및 평생 기억</strong>됩니다.
+              </div>
+            </div>
+          </div>
+
+          <!-- [방법 B] 다화자 시뮬레이션 실행 & 새 시뮬레이션 추가 -->
+          <div class="studio-section-box sim-box">
+            <div class="studio-section-header">
+              <span class="section-tag sim">다화자 회의 시뮬레이션 (목소리별 분리 → 1회 선택 일괄 기록 → 다음 회의 자동 분류 체험)</span>
+              <button type="button" class="add-sim-preset-btn" id="btnAddPresetSim" onclick="handleCreatePresetSimulation()">
+                ＋ 새로운 회의 시뮬레이션 추가
+              </button>
+            </div>
+
+            <div class="sim-creator-row">
+              <input type="text" id="newSimTopicInput" placeholder="새로운 회의 주제 입력 (예: 자율주행 특허 방어 회의, 클라우드 해킹 긴급 점검)...">
+              <button type="button" class="create-sim-btn" id="btnCreateCustomSim" onclick="handleCreateCustomSimulation()">
+                ✨ 새 시뮬레이션 버튼 만들기
+              </button>
+            </div>
+
+            <div class="sample-btn-group" id="simButtonList">
+              <!-- app.js에서 동적 생성 -->
+            </div>
+          </div>
+
+          <!-- ===============================================================
+               핵심 기능: 목소리별 분류된 대화 타임라인 & 참석자 일괄 매핑 보드
+               =============================================================== -->
+          <div class="diarization-board">
+            <div class="diarization-header">
+              <div>
+                <h3>🗣️ 목소리별 추출 대화 목록 (참석자 1회 선택 시 동일 목소리 문장 일괄 기록 &amp; 성문 영구 저장)</h3>
+                <p class="diarization-sub">
+                  • 🟢 <strong>성문 평생기억됨</strong>: 이전에 한 번 선택하여 기억된 목소리로, 회의 시작 시 <strong>자동 분류</strong>되었습니다.<br>
+                  • ❓ <strong>미분류 목소리</strong>: 우측 드롭다운에서 <strong>회의 참석자를 선택하면 같은 목소리가 말한 모든 문장이 한 번에 일괄 변경</strong>되고 평생 기억됩니다!
+                </p>
+              </div>
+              <button type="button" class="clear-btn" onclick="clearTranscript()">🗑️ 대화 초기화</button>
+            </div>
+
+            <!-- 목소리 그룹별 원클릭 일괄 참석자 지정 요약 바 -->
+            <div class="voice-group-summary-bar" id="voiceGroupSummaryBar"></div>
+
+            <!-- 문장별 타임라인 리스트 -->
+            <div class="utterance-list" id="utteranceListContainer">
+              <div class="empty-utterance-msg">
+                마이크로 회의를 시작하거나 위 시뮬레이션 버튼을 누르면 목소리별로 분류된 대화 문장이 여기에 표시됩니다.
+              </div>
+            </div>
+          </div>
+
+          <!-- 전체 회의록 원문 텍스트창 (일괄 변경 실시간 연동) -->
+          <details class="raw-transcript-details" open>
+            <summary>📄 전체 회의록 텍스트 전문 보기 (참석자 선택 시 일괄 자동 갱신됨)</summary>
+            <textarea id="transcriptTextarea" rows="5" placeholder="[발언자]: 회의 발언 내용이 실시간으로 여기에 전사됩니다..."></textarea>
+          </details>
+
+          <button type="button" class="primary-extract-btn" id="btnExtractActions" onclick="handleFinishAndSaveMeeting()">
+            ⏹️ 회의 종료 확정 — 목소리(성문) 평생 저장 &amp; AI 3줄 요약·액션 아이템 추출하기
+          </button>
+
+          <!-- AI 3줄 요약 결과 박스 -->
+          <div class="ai-summary-box" id="aiSummaryBox" style="display:none;">
+            <div class="summary-title">🧠 로컬 AI 핵심 회의록 요약 (폐쇄망 온디바이스 분석 완료)</div>
+            <ul id="aiSummaryList"></ul>
+          </div>
+        </section>
+
+        <!-- 우측: 담당자별 액션 아이템 트래커 -->
+        <section class="card action-board-card">
+          <div class="card-header-row">
+            <h2>📋 3단계: 화자별 회의 추출 액션 아이템 (<span id="totalActionCount">0</span>건)</h2>
+            <div class="filter-tabs" id="prioFilterTabs">
+              <button type="button" class="filter-tab active" data-prio="ALL" onclick="setPrioFilter('ALL')">전체</button>
+              <button type="button" class="filter-tab" data-prio="긴급" onclick="setPrioFilter('긴급')">🚨 긴급</button>
+              <button type="button" class="filter-tab" data-prio="높음" onclick="setPrioFilter('높음')">🔥 높음</button>
+              <button type="button" class="filter-tab" data-prio="보통" onclick="setPrioFilter('보통')">📌 보통</button>
+            </div>
+          </div>
+
+          <!-- 수동 액션 아이템 추가 -->
+          <div class="quick-add-row">
+            <input type="text" id="assigneeInput" class="assignee-input" placeholder="담당자 (예: 김수석)">
+            <select id="prioSelect">
+              <option value="긴급">🚨 긴급</option>
+              <option value="높음" selected>🔥 높음</option>
+              <option value="보통">📌 보통</option>
+            </select>
+            <input type="text" id="itemInput" class="task-input" placeholder="직접 추가할 회의 액션 아이템 입력 후 [＋ 등록] 클릭...">
+            <button type="button" id="btnAdd">＋ 등록</button>
+          </div>
+
+          <!-- 액션 아이템 리스트 -->
+          <ul id="itemList" class="item-list">
+            <li>데이터를 불러오는 중...</li>
+          </ul>
+        </section>
+      </div>
     </main>
   </div>
   <script src="app.js"></script>
